@@ -165,7 +165,7 @@ export default class DayView extends React.PureComponent {
         backgroundColor: event.color,
       };
 
-      let styles = this._deepMerge(styles, event.styles);
+      let styles = this._deepMerge(styles || {}, event.styles);
 
       // Fixing the number of lines for the event title makes this calculation easier.
       // However it would make sense to overflow the title to a new line if needed
