@@ -130,6 +130,22 @@ export default class DayView extends React.PureComponent {
     });
   }
 
+  _deepMerge(obj1, obj2) {
+    for (let p in obj2) {
+      try {
+        if (obj2[p].constructor == Object) {
+          obj1[p] = this._deepMerge(obj1[p], obj2[p]);
+        } else {
+          obj1[p] = obj2[p];
+        }
+      } catch (e) {
+        obj1[p] = obj2[p];
+      }
+    }
+
+    return obj1;
+  }
+
   _onEventTapped(event) {
     this.props.eventTapped(event);
   }
@@ -149,7 +165,7 @@ export default class DayView extends React.PureComponent {
         backgroundColor: event.color,
       };
 
-      let styles = { ...styles, ...event.styles };
+      let styles = this._deepMerge(styles, event.styles);
 
       // Fixing the number of lines for the event title makes this calculation easier.
       // However it would make sense to overflow the title to a new line if needed
@@ -167,6 +183,12 @@ export default class DayView extends React.PureComponent {
             this.props.renderEvent(event)
           ) : (
             <View>
+              {numberOfLines > 2 ? (
+                <Text style={styles.eventTimes} numberOfLines={1}>
+                  {moment(event.start).format(formatTime)} -{' '}
+                  {moment(event.end).format(formatTime)}
+                </Text>
+              ) : null}
               <Text numberOfLines={1} style={styles.eventTitle}>
                 {event.title || 'Event'}
               </Text>
@@ -178,13 +200,7 @@ export default class DayView extends React.PureComponent {
                   {event.summary || ' '}
                 </Text>
               ) : null}
-              {numberOfLines > 2 ? (
-                <Text style={styles.eventTimes} numberOfLines={1}>
-                  {moment(event.start).format(formatTime)} -{' '}
-                  {moment(event.end).format(formatTime)}
-                </Text>
-              ) : null}
-              </View>
+            </View>
           )}
         </TouchableOpacity>
       );
