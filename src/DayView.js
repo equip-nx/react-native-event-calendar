@@ -21,23 +21,25 @@ export default class DayView extends React.PureComponent {
   constructor(props) {
     super(props);
     this.calendarHeight = (props.end - props.start) * 100;
-    const width = props.width - LEFT_MARGIN;
-    const packedEvents = populateEvents(props.events, width, props.start);
-    let initPosition =
-      _.min(_.map(packedEvents, 'top')) -
-      this.calendarHeight / (props.end - props.start);
-    initPosition = initPosition < 0 ? 0 : initPosition;
-    this.state = {
-      _scrollY: initPosition,
-      packedEvents,
-    };
+    this.state = this.fetchEventsAndPosition(props);
   }
 
-  componentWillReceiveProps(nextProps) {
-    const width = nextProps.width - LEFT_MARGIN;
-    this.setState({
-      packedEvents: populateEvents(nextProps.events, width, nextProps.start),
-    });
+  calculateInitPosition(props, packedEvents) {
+    let initPosition = _.min(_.map(packedEvents, 'top')) - this.calendarHeight / (props.end - props.start);
+    return initPosition < 0 ? 0 : initPosition;
+  }
+
+  fetchEventsAndPosition(props) {
+    const width = props.width - LEFT_MARGIN;
+    const packedEvents = populateEvents(props.events, props.width, props.start);
+    const initPosition = this.calculateInitPosition(props, packedEvents);
+
+    return { _scrollY: initPosition, packedEvents };
+  }
+
+  UNSAFE_componentWillReceiveProps(nextProps) {
+    const state = this.fetchEventsAndPosition(nextProps);
+    this.setState(state);
   }
 
   componentDidMount() {
@@ -53,7 +55,7 @@ export default class DayView extends React.PureComponent {
           animated: true,
         });
       }
-    }, 1);
+    }, 500);
   }
 
   _renderRedLine() {
