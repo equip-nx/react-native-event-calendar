@@ -13,29 +13,30 @@ function range(from, to) {
   return Array.from(Array(to), (_, i) => from + i);
 }
 
+function calculateInitPosition(props, packedEvents, calendarHeight) {
+  let initPosition = _.min(_.map(packedEvents, 'top')) - calendarHeight / (props.end - props.start);
+  return initPosition < 0 ? 0 : initPosition;
+}
+
+function fetchEventsAndPosition(props, calendarHeight) {
+  const width = props.width - LEFT_MARGIN;
+  const packedEvents = populateEvents(props.events, props.width, props.start);
+  const initPosition = calculateInitPosition(props, packedEvents, calendarHeight);
+  return { _scrollY: initPosition, packedEvents };
+}
+
 export default class DayView extends React.PureComponent {
   constructor(props) {
     super(props);
     this.calendarHeight = (props.end - props.start) * 100;
-    this.state = this.fetchEventsAndPosition(props);
-  }
-
-  calculateInitPosition(props, packedEvents) {
-    let initPosition = _.min(_.map(packedEvents, 'top')) - this.calendarHeight / (props.end - props.start);
-    return initPosition < 0 ? 0 : initPosition;
-  }
-
-  fetchEventsAndPosition(props) {
-    const width = props.width - LEFT_MARGIN;
-    const packedEvents = populateEvents(props.events, props.width, props.start);
-    const initPosition = this.calculateInitPosition(props, packedEvents);
-
-    return { _scrollY: initPosition, packedEvents };
+    this.state = fetchEventsAndPosition(props, this.calendarHeight);
   }
 
   UNSAFE_componentWillReceiveProps(nextProps) {
-    const state = this.fetchEventsAndPosition(nextProps);
-    this.setState(state);
+    const state = fetchEventsAndPosition(nextProps, this.calendarHeight);
+    this.setState(state, () => {
+      this.props.scrollToFirst && this.scrollToFirst();
+    });
   }
 
   componentDidMount() {
@@ -51,7 +52,7 @@ export default class DayView extends React.PureComponent {
           animated: true,
         });
       }
-    }, 500);
+    }, 1);
   }
 
   _renderRedLine() {
