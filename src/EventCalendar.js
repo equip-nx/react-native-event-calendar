@@ -97,8 +97,8 @@ export default class EventCalendar extends React.Component {
       <View style={[this.styles.container, { width }]}>
         <View style={this.styles.header}>
           <TouchableOpacity
-              style={this.styles.arrowButton}
-              onPress={this._previous}
+            style={this.styles.arrowButton}
+            onPress={this._previous}
           >
             {leftIcon}
           </TouchableOpacity>

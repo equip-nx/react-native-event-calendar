@@ -5,13 +5,9 @@ import React from 'react';
 import moment from 'moment';
 import _ from 'lodash';
 
-const LEFT_MARGIN = 60 - 1;
-// const RIGHT_MARGIN = 10
+const LEFT_MARGIN = 50;
 const CALENDER_HEIGHT = 2400;
-// const EVENT_TITLE_HEIGHT = 15
 const TEXT_LINE_HEIGHT = 17;
-// const MIN_EVENT_TITLE_WIDTH = 20
-// const EVENT_PADDING_LEFT = 4
 
 function range(from, to) {
   return Array.from(Array(to), (_, i) => from + i);
@@ -132,22 +128,6 @@ export default class DayView extends React.PureComponent {
     });
   }
 
-  _deepMerge(obj1, obj2) {
-    for (let p in obj2) {
-      try {
-        if (obj2[p].constructor == Object) {
-          obj1[p] = this._deepMerge(obj1[p], obj2[p]);
-        } else {
-          obj1[p] = obj2[p];
-        }
-      } catch (e) {
-        obj1[p] = obj2[p];
-      }
-    }
-
-    return obj1;
-  }
-
   _onEventTapped(event) {
     this.props.eventTapped(event);
   }
@@ -157,47 +137,47 @@ export default class DayView extends React.PureComponent {
     const { packedEvents } = this.state;
     let events = packedEvents.map((event, i) => {
       const style = {
-        left: event.left,
-        height: event.height,
-        width: event.width,
         top: event.top,
+        left: event.left,
+        width: event.width,
+        height: event.height,
       };
 
       const eventColor = {
         backgroundColor: event.color,
       };
 
-      let styles = this._deepMerge(styles || {}, event.styles);
-
       // Fixing the number of lines for the event title makes this calculation easier.
       // However it would make sense to overflow the title to a new line if needed
       const numberOfLines = Math.floor(event.height / TEXT_LINE_HEIGHT);
       const formatTime = this.props.format24h ? 'HH:mm' : 'hh:mm A';
+
       return (
         <TouchableOpacity
+          key={i}
           activeOpacity={0.5}
           onPress={() =>
             this._onEventTapped(this.props.events[event.index])
           }
-          key={i} style={[styles.event, style, event.color && eventColor]}
+          style={[styles.event, style, event.color && eventColor, event.styles.event]}
         >
           {this.props.renderEvent ? (
             this.props.renderEvent(event)
           ) : (
             <View>
               {numberOfLines > 1 ? (
-                <Text style={styles.eventTimes} numberOfLines={1}>
+                <Text style={[styles.eventTimes, event.styles.eventTimes]} numberOfLines={1}>
                   {moment(event.start).format(formatTime)} -{' '}
                   {moment(event.end).format(formatTime)}
                 </Text>
               ) : null}
-              <Text numberOfLines={1} style={styles.eventTitle}>
+              <Text numberOfLines={1} style={[styles.eventTitle, event.styles.eventTitle]}>
                 {event.title || 'Event'}
               </Text>
               {numberOfLines > 2 ? (
                 <Text
                   numberOfLines={numberOfLines - 1}
-                  style={[styles.eventSummary]}
+                  style={[styles.eventSummary, event.styles.eventSummary]}
                 >
                   {event.summary || ' '}
                 </Text>

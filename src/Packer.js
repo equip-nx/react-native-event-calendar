@@ -44,6 +44,8 @@ function expand(ev, column, columns) {
 function pack(columns, width, calculatedEvents, dayStart) {
   var colLength = columns.length;
 
+
+
   for (var i = 0; i < colLength; i++) {
     var col = columns[i];
     for (var j = 0; j < col.length; j++) {
@@ -76,7 +78,7 @@ function populateEvents(events, screenWidth, dayStart) {
   lastEnd = null;
 
   events.forEach(function(ev, index) {
-    if (lastEnd !== null && ev.start >= lastEnd) {
+    if (lastEnd !== null && ev.start < lastEnd) {
       pack(columns, screenWidth, calculatedEvents, dayStart);
       columns = [];
       lastEnd = null;
@@ -104,6 +106,7 @@ function populateEvents(events, screenWidth, dayStart) {
   if (columns.length > 0) {
     pack(columns, screenWidth, calculatedEvents, dayStart);
   }
+
   return calculatedEvents;
 }
 

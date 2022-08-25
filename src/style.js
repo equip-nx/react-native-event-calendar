@@ -84,10 +84,10 @@ export default function styleConstructor(theme = {}, calendarHeight) {
       ...theme.eventTimes,
     },
     line: {
-      height: 1,
+      height: 0.5,
       position: 'absolute',
       left: leftMargin,
-      backgroundColor: 'rgb(216,216,216)',
+      backgroundColor: '#D9E4EC',
       ...theme.line,
     },
     lineNow: {
