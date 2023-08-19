@@ -13,64 +13,75 @@ function range(from, to) {
   return Array.from(Array(to), (_, i) => from + i);
 }
 
-function calculateInitPosition(props, packedEvents, calendarHeight) {
-  let initPosition = _.min(_.map(packedEvents, 'top')) - calendarHeight / (props.end - props.start);
+function calculateRedLinePosition(props) {
+  const offset = 100;
+  const timeNowHour = moment().hour();
+  const timeNowMin = moment().minutes();
+
+  return offset * (timeNowHour - props.start) + (offset * timeNowMin) / 60;
+}
+
+function calculateInitPosition(props, packedEvents, redLinePosition, calendarHeight) {
+  let initPosition = redLinePosition - 10;
+
+  if (packedEvents.length > 0 && props.scrollToFirst) {
+    initPosition = _.min(_.map(packedEvents, 'top')) - calendarHeight / (props.end - props.start);
+  }
+
   return initPosition < 0 ? 0 : initPosition;
 }
 
-function fetchEventsAndPosition(props, calendarHeight) {
+function fetchEventsAndPositions(props, calendarHeight) {
   const width = props.width - LEFT_MARGIN;
   const packedEvents = populateEvents(props.events, props.width, props.start);
-  const initPosition = calculateInitPosition(props, packedEvents, calendarHeight);
-  return { _scrollY: initPosition, packedEvents };
+  const redLinePosition = calculateRedLinePosition(props);
+  const initPosition = calculateInitPosition(props, packedEvents, redLinePosition, calendarHeight);
+
+  return { _scrollY: initPosition, _redLinePosition: redLinePosition, packedEvents };
 }
 
 export default class DayView extends React.PureComponent {
   constructor(props) {
     super(props);
     this.calendarHeight = (props.end - props.start) * 100;
-    this.state = fetchEventsAndPosition(props, this.calendarHeight);
+    this.state = fetchEventsAndPositions(props, this.calendarHeight);
   }
 
   UNSAFE_componentWillReceiveProps(nextProps) {
-    const state = fetchEventsAndPosition(nextProps, this.calendarHeight);
+    const state = fetchEventsAndPositions(nextProps, this.calendarHeight);
+
     this.setState(state, () => {
-      this.props.scrollToFirst && this.scrollToFirst();
+      this.scrollToInitPosition();
     });
   }
 
   componentDidMount() {
-    this.props.scrollToFirst && this.scrollToFirst();
+    this.scrollToInitPosition();
   }
 
-  scrollToFirst() {
+  scrollToInitPosition() {
     setTimeout(() => {
       if (this.state && this.state._scrollY && this._scrollView) {
         this._scrollView.scrollTo({
           x: 0,
-          y: this.state._scrollY,
           animated: true,
+          y: this.state._scrollY,
         });
       }
     }, 1);
   }
 
   _renderRedLine() {
-    const offset = 100;
-    const { format24h } = this.props;
     const { width, styles } = this.props;
-    const timeNowHour = moment().hour();
-    const timeNowMin = moment().minutes();
+
     return (
       <View
         key={`timeNow`}
         style={[
           styles.lineNow,
           {
-            top:
-              offset * (timeNowHour - this.props.start) +
-              (offset * timeNowMin) / 60,
             width: width - 20,
+            top: this.state._redLinePosition,
           },
         ]}
       />
