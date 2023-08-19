@@ -1,7 +1,7 @@
 {
   "name": "react-native-events-calendar",
-  "version": "1.0.8",
-  "description": "show calendar events by date",
+  "version": "1.0.9",
+  "description": "Show calendar events by date",
   "main": "./src/EventCalendar.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -17,7 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/joshyhargreaves/react-native-event-calendar.git"
+    "url": "git+https://github.com/equip-nx/react-native-event-calendar.git"
   },
   "keywords": [
     "react-native",
@@ -40,7 +40,7 @@
   "author": "Josh Hargreaves",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/joshyhargreaves/react-native-event-calendar/issues"
+    "url": "https://github.com/equip-nx/react-native-event-calendar/issues"
   },
-  "homepage": "https://github.com/joshyhargreaves/react-native-event-calendar#readme"
+  "homepage": "https://github.com/equip-nx/react-native-event-calendar#readme"
 }
